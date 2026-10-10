@@ -3,41 +3,41 @@ import uvicorn
 import argparse
 import subprocess
 
+from config.load import CONFIG
+
 def main():
     parser = argparse.ArgumentParser(
-        prog = "cfs-admin-cli", description = "Herramienta de despliegue de servicio de monitoreo para cfs-cs."
+        prog = "cfs-admin-cli",
+        description = "Herramienta de despliegue de servicio de monitoreo para cfs-cs"
     )
 
     subparser = parser.add_subparsers(dest = "accion", required = True)
 
     parser_run = subparser.add_parser("run")
-    parser_run.add_argument("target", choices = ["app", "aplicacion", "db", "database"])
+    parser_run.add_argument("target", choices = ["app", "db"])
 
     parser_create = subparser.add_parser("create")
-    parser_create.add_argument("target", choices = ["db", "database"])
+    parser_create.add_argument("service", choices = ["db"])
 
     args = parser.parse_args()
 
 
-
-    if (args.target in ("db", "database")):
-        if (args.accion == "run"):
+    if (args.accion == "run"):
+        if (args.target == "db"): 
             subprocess.run(["docker", "compose", "down", "-v"])
             subprocess.run(["docker", "compose", "up", "-d"])
 
-        elif (args.subparser == "create"):
-            from db.create_db import create_database
-            create_database()
+        else:
+            uvicorn.run("core.app:application", host = "localhost", port = CONFIG.port)
 
         sys.exit(0)
 
-
-    elif  (args.target in ("app", "aplicacion")):
-        if (args.accion == "run"):
-            uvicorn.run("config.app:Aplicacion", host = "127.0.0.1", port = 8000, reload = True)
+    elif (args.accion == "create"):
+        if (args.service == "db"):
+            from db.controller import create_tables
+            create_tables()
 
         sys.exit(0)
-
 
 
 if __name__ == "__main__":
