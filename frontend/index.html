@@ -4,64 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>CFS-Admin · Iniciar sesión</title>
-<style>
-:root{
-  --yellow:#F6C945; --green:#1F6B3F; --green-d:#16522F;
-  --page:#1F6B3F; --card:#FFFFFF; --ink:#141414; --muted:#6B675C; --line:#D9D5C7; --danger:#B3361F;
-  box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
-  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){--page:#0F3A22;--card:#181818;--ink:#F5F1E3;--muted:#A39E8E;--line:#34322B;--danger:#FF8A6B}
-}
-:root[data-theme="dark"]{--page:#0F3A22;--card:#181818;--ink:#F5F1E3;--muted:#A39E8E;--line:#34322B;--danger:#FF8A6B}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-*,*::before,*::after{box-sizing:inherit}
-html,body{margin:0;min-height:100%}
-body{min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:20px;background:var(--page);color:var(--ink)}
 
-/* Fondo */
-.bg{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
-.bg::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,248,231,.16) 1.5px,transparent 1.5px);background-size:26px 26px}
-.s{position:absolute;border-radius:50%}
-.s1{width:54vmax;height:54vmax;left:-20vmax;top:-24vmax;background:var(--yellow)}
-.s2{width:36vmax;height:36vmax;right:-11vmax;bottom:-15vmax;background:#121212}
-.s3{width:22vmax;height:22vmax;left:7%;bottom:-9vmax;background:#2E8B57;animation:drift 12s ease-in-out infinite}
-.s4{width:17vmax;height:17vmax;right:9%;top:9%;border:3px solid var(--yellow);animation:drift 14s ease-in-out -5s infinite}
-.s5{width:2.4vmax;height:2.4vmax;left:24%;top:16%;background:#FFF8E7}
-@keyframes drift{50%{translate:0 -18px}}
+<link rel="stylesheet" href="index.css">
 
-.card{position:relative;z-index:1;box-shadow:0 10px 0 rgba(0,0,0,.28);width:100%;max-width:380px;background:var(--card);border:1px solid var(--line);border-top:5px solid var(--yellow);border-radius:12px;padding:36px 32px 32px}
-.brand{display:flex;align-items:center;gap:10px;margin-bottom:28px}
-.mark{width:34px;height:34px;border-radius:8px;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:800;font-size:.95rem}
-.brand b{font-size:1.25rem;letter-spacing:-.01em}
-h1{font-size:1.4rem;margin:0 0 4px}
-.sub{margin:0 0 26px;color:var(--muted);font-size:.95rem}
-
-label{display:block;font-size:.88rem;font-weight:600;margin-bottom:6px}
-.field{margin-bottom:18px}
-.row{position:relative}
-input{width:100%;height:46px;padding:0 14px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);font:inherit;font-size:1rem;transition:border-color .2s,box-shadow .2s}
-input:focus{outline:0;border-color:var(--green);box-shadow:0 0 0 3px color-mix(in srgb,var(--yellow) 55%,transparent)}
-.field.err input{border-color:var(--danger)}
-.toggle{position:absolute;right:6px;top:6px;height:34px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:var(--muted);font:inherit;font-size:.85rem;cursor:pointer}
-.toggle:hover{color:var(--ink)}
-.msg{min-height:1.2em;margin:6px 0 0;font-size:.85rem;color:var(--danger)}
-.field .msg{min-height:0;margin:0}
-.field.err .msg{margin-top:6px}
-
-.btn{width:100%;height:48px;border:0;border-radius:8px;background:var(--green);color:#fff;font:inherit;font-weight:600;font-size:1rem;cursor:pointer;margin-top:6px;transition:background .2s}
-.btn:hover{background:var(--green-d)}
-.btn:disabled{opacity:.7;cursor:wait}
-.ok{color:var(--green)}
-:root[data-theme="dark"] .ok{color:var(--yellow)}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ok{color:var(--yellow)}}
-:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
-input:focus-visible{outline:0}
-.foot{margin:22px 0 0;text-align:center;font-size:.8rem;color:var(--muted)}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-</style>
 </head>
 <body>
 <div class="bg" aria-hidden="true"><i class="s s1"></i><i class="s s2"></i><i class="s s3"></i><i class="s s4"></i><i class="s s5"></i></div>
@@ -92,41 +37,6 @@ input:focus-visible{outline:0}
   <p class="foot">¿Problemas para entrar? Contacta al administrador.</p>
 </main>
 
-<script>
-(function(){
-  var $=function(id){return document.getElementById(id)};
-  var user=$('user'), pass=$('pass'), btn=$('btn'), status=$('status');
-
-  $('toggle').addEventListener('click',function(){
-    var show=pass.type==='password';
-    pass.type=show?'text':'password';
-    this.textContent=show?'Ocultar':'Mostrar';
-    this.setAttribute('aria-pressed',show);
-  });
-
-  function check(fid,mid,bad,text){
-    $(fid).classList.toggle('err',bad);
-    $(mid).textContent=bad?text:'';
-    return !bad;
-  }
-
-  $('form').addEventListener('submit',function(e){
-    e.preventDefault();
-    status.className='msg'; status.textContent='';
-    var u=check('f-user','m-user',!user.value.trim(),'Escribe tu usuario.');
-    var p=check('f-pass','m-pass',!pass.value,'Escribe tu contraseña.');
-    if(!u){user.focus();return}
-    if(!p){pass.focus();return}
-
-    btn.disabled=true; btn.textContent='Ingresando…';
-    // Simulación: reemplaza este setTimeout por tu llamada real (fetch) al servidor.
-    setTimeout(function(){
-      btn.disabled=false; btn.textContent='Ingresar';
-      status.className='msg ok';
-      status.textContent='Sesión iniciada. Redirigiendo al panel…';
-    },1000);
-  });
-})();
-</script>
+<script src="js/index.js"></script>
 </body>
 </html>
