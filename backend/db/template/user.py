@@ -4,27 +4,27 @@ from sqlalchemy.orm import Mapped, mapped_column
 from db.connect import Base
 
 
-class User(Base):
-    __tablename__ = "users"
+class usuario(Base):
+    __tablename__ = "Usuarios"
 
     id: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True
     )
 
-    username: Mapped[str] = mapped_column(
+    nombre: Mapped[str] = mapped_column(
         String(50),
         unique=True,
         nullable=False
     )
 
-    email: Mapped[str] = mapped_column(
-        String(100),
-        unique=True,
+    contraseña: Mapped[str] = mapped_column(
+        String(255),
         nullable=False
     )
 
-    password: Mapped[str] = mapped_column(
-        String(255),
+    direccion: Mapped[str] = mapped_column(
+        String(150),
+        unique=True,
         nullable=False
     )
