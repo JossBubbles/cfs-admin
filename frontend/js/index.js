@@ -1,84 +1,145 @@
-async function iniciarSesion(usuario, password) {
-  try {
-    const respuesta = await fetch('https://api.ejemplo.com/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({ user: usuario, pass: password })
-    });
 
-    if (!respuesta.ok) {
-      const errorData = await respuesta.json();
-      throw new Error(errorData.mensaje || 'Credenciales incorrectas');
-    }
+import { urlserver } from "./cons.js";
 
-    const resultado = await respuesta.json();
-    console.log('Autenticación exitosa, Token:', resultado.token);
-    return resultado;
-    
-  } catch (error) {
-    console.error('Error en el inicio de sesión:', error.message);
-    throw error;
-  }
+"use strict";
+
+// Referencias a los elementos HTML
+const $ = (id) => document.getElementById(id);
+
+const form = $("form");
+const user = $("user");
+const pass = $("pass");
+const btn = $("btn");
+const status = $("status");
+const toggleBtn = $("toggle");
+
+// Comprobar que los elementos necesarios existen
+if (!form || !user || !pass || !btn || !status || !toggleBtn) {
+  throw new Error(
+    "No se encontraron todos los elementos necesarios del formulario."
+  );
 }
 
+// Mostrar u ocultar la contraseña
+toggleBtn.addEventListener("click", function () {
+  const show = pass.type === "password";
 
-(() => {
-  'use strict';
+  pass.type = show ? "text" : "password";
+  this.textContent = show ? "Ocultar" : "Mostrar";
+  this.setAttribute("aria-pressed", String(show));
+});
 
-  const $ = (id) => document.getElementById(id);
-  const user = $('user');
-  const pass = $('pass');
-  const btn = $('btn');
-  const status = $('status');
-  const toggleBtn = $('toggle');
-  const form = $('form');
+// Validar campos del formulario
+const check = (fid, mid, hasError, errorMessage) => {
+  const field = $(fid);
+  const message = $(mid);
 
-  toggleBtn.addEventListener('click', function () {
-    const show = pass.type === 'password';
-    pass.type = show ? 'text' : 'password';
-    this.textContent = show ? 'Ocultar' : 'Mostrar';
-    this.setAttribute('aria-pressed', show);
+  field.classList.toggle("err", hasError);
+  message.textContent = hasError ? errorMessage : "";
+
+  return !hasError;
+};
+
+// Enviar las credenciales al backend
+async function iniciarSesion(username, password) {
+  const respuesta = await fetch(`${urlserver}/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    body: JSON.stringify({
+      username,
+      password
+    })
   });
 
+  // Leer la respuesta del servidor
+  const resultado = await respuesta.json();
 
-  const check = (fid, mid, hasError, errorMessage) => {
-    $(fid).classList.toggle('err', hasError);
-    $(mid).textContent = hasError ? errorMessage : '';
-    return !hasError;
-  };
+  if (!respuesta.ok) {
+    throw new Error(
+      resultado.detail ||
+      resultado.mensaje ||
+      "Error al iniciar sesión."
+    );
+  }
 
-  // 4. Manejo del evento de envío del formulario
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    status.className = 'msg';
-    status.textContent = '';
+  return resultado;
+}
 
-    const isUserValid = check('f-user', 'm-user', !user.value.trim(), 'Escribe tu usuario.');
-    const isPassValid = check('f-pass', 'm-pass', !pass.value, 'Escribe tu contraseña.');
+// Manejar el envío del formulario
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-    if (!isUserValid) {
-      user.focus();
-      return;
+  // Limpiar mensajes anteriores
+  status.className = "msg";
+  status.textContent = "";
+
+  // Validar usuario
+  const isUserValid = check(
+    "f-user",
+    "m-user",
+    !user.value.trim(),
+    "Escribe tu usuario."
+  );
+
+  // Validar contraseña
+  const isPassValid = check(
+    "f-pass",
+    "m-pass",
+    !pass.value,
+    "Escribe tu contraseña."
+  );
+
+  if (!isUserValid) {
+    user.focus();
+    return;
+  }
+
+  if (!isPassValid) {
+    pass.focus();
+    return;
+  }
+
+  // Deshabilitar el botón durante la petición
+  btn.disabled = true;
+  btn.textContent = "Ingresando…";
+
+  try {
+    const resultado = await iniciarSesion(
+      user.value.trim(),
+      pass.value
+    );
+
+    console.log("Respuesta del servidor:", resultado);
+
+    if (!resultado.ok || !resultado.token) {
+      throw new Error("El servidor no confirmó el inicio de sesión.");
     }
-    
-    if (!isPassValid) {
-      pass.focus();
-      return;
-    }
 
-    btn.disabled = true;
-    btn.textContent = 'Ingresando…';
+    // Guardar el token para utilizarlo en futuras peticiones.
+    // Esto es una implementación básica; para producción,
+    // considera una cookie HttpOnly y Secure.
+    sessionStorage.setItem("token", resultado.token);
 
-    // Simulación de petición al servidor (reemplazar con llamada fetch real)
-    setTimeout(() => {
-      btn.disabled = false;
-      btn.textContent = 'Ingresar';
-      status.className = 'msg ok';
-      status.textContent = 'Sesión iniciada. Redirigiendo al panel…';
-    }, 1000);
-  });
-})();
+    status.className = "msg ok";
+    status.textContent = "Sesión iniciada correctamente.";
+
+    // Redirigir al panel
+    window.location.href = "/panel";
+
+  } catch (error) {
+    console.error("Error en el inicio de sesión:", error);
+
+    status.className = "msg error";
+    status.textContent =
+      error instanceof TypeError
+        ? "No se pudo conectar con el servidor. Comprueba la conexión."
+        : error.message || "No se pudo iniciar sesión.";
+
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Ingresar";
+  }
+});

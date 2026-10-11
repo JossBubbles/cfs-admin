@@ -28,7 +28,7 @@ def main():
             subprocess.run(["docker", "compose", "up", "-d"])
 
         else:
-            uvicorn.run("core.app:application", host = "localhost", port = CONFIG.port)
+            uvicorn.run("core.app:application", host = "localhost", port = CONFIG.PORT_APP)
 
         sys.exit(0)
 
