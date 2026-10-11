@@ -1,6 +1,10 @@
 fastapi
 uvicorn
+psycopg
 sqlalchemy
+PyJWT[crypto]
 python-dotenv
+pwdlib[argon2]
+email-validator
 psycopg[binary]
 pydantic-settings

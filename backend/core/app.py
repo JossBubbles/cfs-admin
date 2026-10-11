@@ -12,10 +12,10 @@ from api.login import router as router_login
 
 application.add_middleware(
     CORSMiddleware,
-    allow_origins = CONFIG.cors_allow_origins,
-    allow_credentials = CONFIG.cors_allow_credentials,
-    allow_methods = CONFIG.cors_allow_methods,
-    allow_headers = CONFIG.cors_allow_headers,
+    allow_origins = CONFIG.CORS_ALLOW_ORIGINS,
+    allow_credentials = CONFIG.CORS_ALLOW_CREDENTIALS,
+    allow_methods = CONFIG.CORS_ALLOW_METHODS,
+    allow_headers = CONFIG.CORS_ALLOW_HEADERS,
 )
 
 application.add_api_route(router_login)
