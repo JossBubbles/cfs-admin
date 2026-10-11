@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config.load import CONFIG
-import db.template  # noqa: F401 - Carga todos los modelos de base de datos en el registro de SQLAlchemy
+import db.templates
 from api.login import router as router_login
 
 application = FastAPI(title="cfs-admin")

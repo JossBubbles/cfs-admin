@@ -10,12 +10,10 @@ pwd_context = PasswordHash((Argon2Hasher(),))
 
 
 def hash_password(password: str) -> str:
-    """Genera el hash seguro de una contraseña usando Argon2id."""
     return pwd_context.hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verifica si la contraseña coincide con el hash en tiempo constante."""
     try:
         return pwd_context.verify(plain_password, hashed_password)
     except Exception:
@@ -23,10 +21,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def create_jwt_token(data: dict, expires_delta: timedelta, token_type: str = "access") -> str:
-    """
-    Crea un token JWT firmado criptográficamente.
-    Incluye claims requeridos: sub, iat, exp y type.
-    """
     to_encode = data.copy()
     now = datetime.now(timezone.utc)
     expire = now + expires_delta
@@ -41,7 +35,6 @@ def create_jwt_token(data: dict, expires_delta: timedelta, token_type: str = "ac
 
 
 def create_access_token(subject: str | int, extra_claims: dict | None = None) -> str:
-    """Genera un Access Token de corta duración."""
     data = {"sub": str(subject)}
     if extra_claims:
         data.update(extra_claims)
@@ -53,7 +46,6 @@ def create_access_token(subject: str | int, extra_claims: dict | None = None) ->
 
 
 def create_refresh_token(subject: str | int) -> str:
-    """Genera un Refresh Token de mayor duración."""
     data = {"sub": str(subject)}
     return create_jwt_token(
         data=data,
@@ -63,10 +55,6 @@ def create_refresh_token(subject: str | int) -> str:
 
 
 def decode_token(token: str) -> dict:
-    """
-    Decodifica y valida la firma y expiración de un JWT.
-    Lanza excepciones de PyJWT si es inválido o expiró.
-    """
     return jwt.decode(
         token,
         CONFIG.JWT_SECRET_KEY,

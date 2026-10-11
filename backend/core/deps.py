@@ -7,20 +7,16 @@ from sqlalchemy import select
 
 from core.security import decode_token
 from db.controller import get_db
-from db.template.user import usuario
+from db.templates.user import usuario
 
-# Esquema Bearer estándar de FastAPI
+
 security_scheme = HTTPBearer(auto_error=True)
 
 
 def get_current_user(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security_scheme)],
-    db: Annotated[Session, Depends(get_db)],
-) -> usuario:
-    """
-    Valida el token Bearer recibido en la cabecera Authorization y retorna el usuario autenticado.
-    Lanza 401 si el token no es válido, expiró o no corresponde a un Access Token.
-    """
+    db: Annotated[Session, Depends(get_db)]) -> usuario:
+
     token = credentials.credentials
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -33,7 +29,6 @@ def get_current_user(
         token_type: str = payload.get("type")
         username: str = payload.get("sub")
 
-        # Asegurar que no se pueda usar un Refresh Token para acceder a endpoints
         if token_type != "access" or username is None:
             raise credentials_exception
 
@@ -46,7 +41,7 @@ def get_current_user(
     except jwt.PyJWTError:
         raise credentials_exception
 
-    # Buscar usuario en la base de datos
+
     user = db.execute(select(usuario).where(usuario.nombre == username)).scalar_one_or_none()
     if user is None:
         raise credentials_exception
